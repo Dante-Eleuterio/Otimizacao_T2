@@ -6,7 +6,7 @@ vector<int> A,B,optimalA,optimalB,C;
 int nodes=0;
 int optimal=INT_MAX;
 int optimalcut =0; 
-int viabilitycut=0;
+int viabilitycut=1;
 
 
 int countconflicts(){
@@ -46,40 +46,44 @@ void removeB(int tgt){
         }
     }
 }
+int checksolution(){
+    int foundA=0;
+    int foundB=0;
+    for (int i = 0; i < heroes.size(); i++){
+        for (int j = 0; j < heroes[i].friends.size(); j++){
+            if(heroes[i].friends[j]->group==1){
+                foundA=1;
+            }
+            if(heroes[i].friends[j]->group==2){
+                foundB=1;
+            }
+            if(foundA && foundB){
+                cout <<"erro\n";
+                return 0;
+            }
+        }
+        foundA=0;
+        foundB=0;
+    }
+    return 1;
 
+}
 
 void bnb(int count){
     int foundA=0;
     int foundB=0;
     if(count==heroes.size()){
-        for (int i = 0; i < heroes.size(); i++){
-            for (int j = 0; j < count; j++)
-            {
-                /* code */
-            }
-            
-            if(heroes[count].friends[i]->group==1){
-                foundA=1;
-            }
-
-            if(heroes[count].friends[i]->group==2){
-                foundB=1;
-            }
-            
-            if(foundA && foundB){
-                cout<<"teste\n";
-                return;
-            }
-        }
-        if(countconflicts()<optimal){
-            optimal=countconflicts();
-            optimalA.clear();
-            optimalB.clear();
-            for (int i = 0; i < A.size(); i++){
-                optimalA.push_back(A[i]);
-            }
-            for (int i = 0; i < B.size(); i++){
-                optimalB.push_back(B[i]);
+        if (checksolution()){        
+            if(countconflicts()<optimal){
+                optimal=countconflicts();
+                optimalA.clear();
+                optimalB.clear();
+                for (int i = 0; i < A.size(); i++){
+                    optimalA.push_back(A[i]);
+                }
+                for (int i = 0; i < B.size(); i++){
+                    optimalB.push_back(B[i]);
+                }
             }
         }
         return;
@@ -87,19 +91,17 @@ void bnb(int count){
 
     nodes++;
 
-    if(viabilitycut){
-        for (int i = 0; i < heroes[count].friends.size(); i++){
-            
-            if(heroes[count].friends[i]->group==1){
-                foundA=1;
-            }
+    for (int i = 0; i < heroes[count].friends.size(); i++){
+        if(heroes[count].friends[i]->group==1){
+            foundA=1;
+        }
 
-            if(heroes[count].friends[i]->group==2){
-                foundB=1;
-            }
-            
+        if(heroes[count].friends[i]->group==2){
+            foundB=1;
+        }
+        
+        if(viabilitycut){
             if(foundA && foundB){
-                cout<<"teste\n";
                 return;
             }
         }
@@ -145,17 +147,30 @@ void bnb(int count){
             }
         }
     }else{
-        A.push_back(heroes[count].name);
-        heroes[count].group=1;
-        bnb(count+1);
-        removeA(heroes[count].name);
+        if(foundA){
+            A.push_back(heroes[count].name);
+            heroes[count].group=1;
+            bnb(count+1);
+            removeA(heroes[count].name);
+            heroes[count].group=0;
+        }else if(foundB){
+            heroes[count].group=2;
+            B.push_back(heroes[count].name);
+            bnb(count+1);
+            removeB(heroes[count].name);
+            heroes[count].group=0;
+        }else{
+            A.push_back(heroes[count].name);
+            heroes[count].group=1;
+            bnb(count+1);
+            removeA(heroes[count].name);
+            heroes[count].group=2;
+            B.push_back(heroes[count].name);
+            bnb(count+1);
+            removeB(heroes[count].name);
+            heroes[count].group=0;
+        }
 
-        heroes[count].group=2;
-        B.push_back(heroes[count].name);
-        bnb(count+1);
-
-        removeB(heroes[count].name);
-        heroes[count].group=0;
         return;
 
     }
