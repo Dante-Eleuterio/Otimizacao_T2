@@ -5,7 +5,7 @@ vector<graph> heroes;
 vector<int> A,B,optimalA,optimalB,C;
 int nodes=0;
 int optimal=INT_MAX;
-int optimalcut =1; 
+int optimalcut =0; 
 int viabilitycut=1;
 int myfunction=0;
 
@@ -29,7 +29,7 @@ int betterGuedes(){
 
 int Guedes(){
 
-    
+
 
 
 
@@ -129,38 +129,34 @@ void bnb(int count){
             heroes[count].group=1;
             if(limitating()){
                 bnb(count+1);
-            }else{
-                removeA(heroes[count].name);
-                heroes[count].group=0;
-                return;
             }
+            removeA(heroes[count].name);
+            heroes[count].group=0;
+            return;
         }else if(foundB){
             B.push_back(heroes[count].name);
             heroes[count].group=2;
             if(limitating()){
                 bnb(count+1);
-            }else{
-                removeB(heroes[count].name);
-                heroes[count].group=0;
-                return;
             }
+            removeB(heroes[count].name);
+            heroes[count].group=0;
+            return;
         }else{
             A.push_back(heroes[count].name);
             heroes[count].group=1;
             if(limitating()){
                 bnb(count+1);
-            }else{
-                removeA(heroes[count].name);
-                heroes[count].group=2;
-                B.push_back(heroes[count].name);
-                if(limitating()){
-                    bnb(count+1);
-                }else{
-                    removeB(heroes[count].name);
-                    heroes[count].group=0;
-                    return;
-                }
             }
+            removeA(heroes[count].name);
+            heroes[count].group=2;
+            B.push_back(heroes[count].name);
+            if(limitating()){
+                bnb(count+1);
+            }
+            removeB(heroes[count].name);
+            heroes[count].group=0;
+            return;
         }
     }else{
         if(foundA){
@@ -198,7 +194,7 @@ int main(int argc, char const *argv[]){
         if(!strncmp(argv[i],"-a",3))
             myfunction=0;
         if(!strncmp(argv[i],"-f",3))
-            viabilitycut=1;
+            viabilitycut=0;
         if(!strncmp(argv[i],"-o",3))
             optimalcut=0;
     }
