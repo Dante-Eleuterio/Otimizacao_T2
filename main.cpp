@@ -5,8 +5,8 @@ vector<graph> heroes;
 vector<int> A,B,optimalA,optimalB,C;
 int nodes=0;
 int optimal=INT_MAX;
-int optimalcut =0; 
-int viabilitycut=0;
+int optimalcut =1; 
+int viabilitycut=1;
 int myfunction=0;
 
 int countconflicts(){
@@ -23,9 +23,24 @@ int countconflicts(){
     return conflicts/2;    
 }
 
+int betterGuedes(){
+    return 1;
+}
+
+int Guedes(){
+
+    
+
+
+
+    return 1;
+}
 
 int limitating(){
-    return 0;
+    if (myfunction)
+        return betterGuedes();
+    else
+        return Guedes();
 }
 
 void removeA(int tgt){
@@ -71,18 +86,20 @@ int checksolution(){
 void bnb(int count){
     int foundA=0;
     int foundB=0;
+
     if(count==heroes.size()){
-        if (checksolution()){        
-            if(countconflicts()<optimal){
-                optimal=countconflicts();
-                optimalA.clear();
-                optimalB.clear();
-                for (int i = 0; i < A.size(); i++){
-                    optimalA.push_back(A[i]);
-                }
-                for (int i = 0; i < B.size(); i++){
-                    optimalB.push_back(B[i]);
-                }
+        if(!viabilitycut && !checksolution()){
+            return;
+        }
+        if(countconflicts()<optimal){
+            optimal=countconflicts();
+            optimalA.clear();
+            optimalB.clear();
+            for (int i = 0; i < A.size(); i++){
+                optimalA.push_back(A[i]);
+            }
+            for (int i = 0; i < B.size(); i++){
+                optimalB.push_back(B[i]);
             }
         }
         return;
@@ -169,9 +186,7 @@ void bnb(int count){
             removeB(heroes[count].name);
             heroes[count].group=0;
         }
-
         return;
-
     }
 }
 
