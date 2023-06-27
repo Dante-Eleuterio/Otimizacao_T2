@@ -1,8 +1,11 @@
 #include <bits/stdc++.h>
 #include "graph.h"
+
 using namespace std;
+
 vector<graph> heroes;
-vector<int> A,B,optimalA,optimalB,C;
+vector<int> A, B, optimalA, optimalB;
+
 int nodes=0;
 int optimal=INT_MAX;
 int optimalcut =0; 
@@ -23,23 +26,83 @@ int countconflicts(){
     return conflicts/2;    
 }
 
+//int contaConflitosGrupo(vector<int> grupo){
+//    vector<int>::iterator i;
+//    vector<int>::iterator j;
+//    int conflicts = 0;
+//
+//    for (i = grupo.begin(); i != grupo.end(); ++i){
+//        for (j = grupo.begin(); j != grupo.end(); ++j){
+//            for(int k = 0; k < heroes[(*i) -1].enemies.size(); ++k){
+//                if(heroes[(*i) -1].enemies[k]->name == (*j))
+//                    conflicts++;
+//            }
+//        }
+//    } 
+//    return conflicts/2;
+//}
+
+vector<int*> find_triangles(vector<graph> C_falta){
+    vector<int*> triangulos;
+
+    for(int i = 0; i < C_falta.size(); ++i){
+        for(int j = 0; j < C_falta[i].enemies.size(); ++j){
+            for(int k = 0; k < C_falta[i].enemies[j]->enemies.size(); ++j){
+                int size = C_falta[i].enemies[j]->enemies[k]->enemies.size();
+                for(int w = 0; w < size; ++w){
+                    if(C_falta[i].enemies[j]->enemies[k]->enemies[w]->name == i +1){
+                        int triangulo[3];
+                        triangulo[0] = i + 1;
+                        triangulo[1] = j + 1;
+                        triangulo[2] = k + 1;
+                        triangulos.push_back(triangulo);
+                    }
+                }
+            }
+        }
+    }
+    return triangulos;
+}
+
+int findPairs(int vetor1[3], int vetor2[3]) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (vetor1[i] == vetor2[j] && vetor1[j] == vetor2[i]) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int betterGuedes(){
     return 1;
 }
 
 int Guedes(){
+    int conflicts = countconflicts();
+    vector<graph> C_falta; //Conjunto dos herois que ainda não foram anexados a um grupo
+    
+    vector<graph>::iterator i;
+    for(i = heroes.begin(); i != heroes.end(); ++i)
+        if((*i).group == 0) //Se o herói ainda não foi anexado a um grupo
+            C_falta.push_back(*i);
 
-
-
-
-
-    return 1;
+    int cont = 0;
+    vector<int*> triangulos = find_triangles(C_falta);
+    for(int j = 0; j < triangulos.size(); ++j){
+        for(int k = j + 1; k < triangulos.size(); ++k){
+            if(!findPairs(triangulos[j], triangulos[j]))
+                cont++;
+        }
+    }
+    return conflicts + cont;
 }
 
 int limitating(){
-    if (myfunction)
+    if (myfunction){
         return betterGuedes();
-    else
+    }else
         return Guedes();
 }
 
