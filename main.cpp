@@ -5,12 +5,13 @@ using namespace std;
 
 vector<graph> heroes;
 vector<int> A, B, optimalA, optimalB;
+vector<int*> conflicts;
 
 int nodes=0;
 int optimal=INT_MAX;
-int optimalcut =0; 
+int optimalcut =1; 
 int viabilitycut=1;
-int myfunction=0;
+int myfunction=1;
 
 int countconflicts(){
     int conflicts=0;
@@ -26,42 +27,35 @@ int countconflicts(){
     return conflicts/2;    
 }
 
-//int contaConflitosGrupo(vector<int> grupo){
-//    vector<int>::iterator i;
-//    vector<int>::iterator j;
-//    int conflicts = 0;
-//
-//    for (i = grupo.begin(); i != grupo.end(); ++i){
-//        for (j = grupo.begin(); j != grupo.end(); ++j){
-//            for(int k = 0; k < heroes[(*i) -1].enemies.size(); ++k){
-//                if(heroes[(*i) -1].enemies[k]->name == (*j))
-//                    conflicts++;
-//            }
-//        }
-//    } 
-//    return conflicts/2;
-//}
+vector<int*> find_triangles(vector<int> agrupeted_heroes){
+    std::vector<int*> triangles;
 
-vector<int*> find_triangles(vector<graph> C_falta){
-    vector<int*> triangulos;
-
-    for(int i = 0; i < C_falta.size(); ++i){
-        for(int j = 0; j < C_falta[i].enemies.size(); ++j){
-            for(int k = 0; k < C_falta[i].enemies[j]->enemies.size(); ++j){
-                int size = C_falta[i].enemies[j]->enemies[k]->enemies.size();
-                for(int w = 0; w < size; ++w){
-                    if(C_falta[i].enemies[j]->enemies[k]->enemies[w]->name == i +1){
-                        int triangulo[3];
-                        triangulo[0] = i + 1;
-                        triangulo[1] = j + 1;
-                        triangulo[2] = k + 1;
-                        triangulos.push_back(triangulo);
-                    }
+    // Percorre todos os pares de inteiros
+    for (int i = 0; i < conflicts.size(); ++i) {
+        for (size_t j = i + 1; j < conflicts.size(); ++j) {
+            for (size_t k = j + 1; k < conflicts.size(); ++k) {
+                // Verifica se os pares formam um triângulo
+                if ((conflicts[i][0] == conflicts[j][0] && conflicts[j][0] == conflicts[k][0]) ||
+                    (conflicts[i][1] == conflicts[j][1] && conflicts[j][1] == conflicts[k][1])) {
+                    // Adiciona o triângulo ao vetor de triângulos
+                    int triangle[3];
+                    triangle[0] = i;
+                    triangle[1] = j;
+                    triangle[2] = k;
+                    triangles.push_back(triangle);
                 }
             }
         }
     }
-    return triangulos;
+
+    //Remove triangulos que contem herois já agrupados
+    vector<int*>::iterator w;
+    for(w = triangles.begin(); w != triangles.end(); ++w)
+        for(int i = 0; i < agrupeted_heroes.size(); ++i)
+            if((*w)[0] == agrupeted_heroes[i] || (*w)[1] == agrupeted_heroes[i] || (*w)[2] == agrupeted_heroes[i])
+                w = triangles.erase(w);
+
+    return triangles;
 }
 
 int findPairs(int vetor1[3], int vetor2[3]) {
@@ -81,22 +75,26 @@ int betterGuedes(){
 
 int Guedes(){
     int conflicts = countconflicts();
-    vector<graph> C_falta; //Conjunto dos herois que ainda não foram anexados a um grupo
+    vector<int> agrupeted_heroes; //Conjunto dos herois que ainda não foram anexados a um grupo
     
     vector<graph>::iterator i;
     for(i = heroes.begin(); i != heroes.end(); ++i)
-        if((*i).group == 0) //Se o herói ainda não foi anexado a um grupo
-            C_falta.push_back(*i);
+        if((*i).group != 0) //Se o herói já foi anexado a um grupo
+            agrupeted_heroes.push_back((*i).name);
 
     int cont = 0;
-    vector<int*> triangulos = find_triangles(C_falta);
+    vector<int*> triangulos = find_triangles(agrupeted_heroes);
     for(int j = 0; j < triangulos.size(); ++j){
         for(int k = j + 1; k < triangulos.size(); ++k){
-            if(!findPairs(triangulos[j], triangulos[j]))
+            if(findPairs(triangulos[j], triangulos[j]) == 0)
                 cont++;
         }
     }
-    return conflicts + cont;
+
+    int B_dada = conflicts + cont;
+    if (B_dada <= optimal)
+        return 1;
+    return 0;
 }
 
 int limitating(){
@@ -273,6 +271,10 @@ int main(int argc, char const *argv[]){
         cin>> h1>>h2;
         heroes[h1-1].enemies.push_back(&heroes[h2-1]);
         heroes[h2-1].enemies.push_back(&heroes[h1-1]);
+        int par_conflito[2];
+        par_conflito[0] = h1;
+        par_conflito[1] = h2;
+        conflicts.push_back(par_conflito);
     }
     for (int i = 0; i < Nfriends; i++){
         cin>> h1>>h2;
