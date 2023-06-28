@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "graph.h"
-
+#include <chrono>
+using namespace std::chrono;
 using namespace std;
 
 vector<graph> heroes;
@@ -145,6 +146,7 @@ int checksolution(){
 }
 
 void bnb(int count){
+    nodes++;
     int foundA=0;
     int foundB=0;
 
@@ -166,7 +168,6 @@ void bnb(int count){
         return;
     }
 
-    nodes++;
 
     if(viabilitycut){
         for (int i = 0; i < heroes[count].friends.size(); i++){
@@ -282,8 +283,11 @@ int main(int argc, char const *argv[]){
         heroes[h2-1].friends.push_back(&heroes[h1-1]);
     }
 
-   
+    auto start = high_resolution_clock::now();
     bnb(0);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    cout << "Time= " <<duration.count()<< endl;
     cout<<"Nodes= "<<nodes<<"\n";
     cout<<"Optimal= "<<optimal<<"\n";
     cout<<"Group A:"<<"\n";
