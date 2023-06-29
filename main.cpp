@@ -8,6 +8,7 @@ vector<graph> heroes;
 vector<int> A, B, optimalA, optimalB;
 vector<int*> conflictsV;
 vector<int*> triangles;
+vector<int*> pentagons;
 
 int nodes=0;
 int optimal=INT_MAX;
@@ -29,6 +30,85 @@ int countconflicts(){
     return conflicts/2;    
 }
 
+// void pentagonsrepetition(int i,int j,int k,int m,int n){
+//     unordered_set<int> distinctNumbers;
+//     for (int i = 0; i < pentagons.size(); i++){
+//         int* pentagon = new int[5];
+//         for (int j = 0; j < 5; j++){
+//             pentagon[j]=pentagons[i][j];
+//         }
+//         if (find(pentagon.begin(), pentagon.end(), pentagon[i][0]) != agrupeted_heroes.end() ||
+//             find(pentagon.begin(), pentagon.end(), pentagon[j][1]) != agrupeted_heroes.end() ||
+//             find(pentagon.begin(), pentagon.end(), pentagon[k][2]) != agrupeted_heroes.end() ||
+//             find(pentagon.begin(), pentagon.end(), pentagon[l][2]) != agrupeted_heroes.end() ||
+//             find(pentagon.begin(), pentagon.end(), pentagon[k][2]) != agrupeted_heroes.end()){
+//         }
+//     }
+    
+// })
+
+int checkPentagon(int i,int j,int k,int m,int n){
+    unordered_set<int> distinctVertices;
+    distinctVertices.insert(conflictsV[i][0]);
+    distinctVertices.insert(conflictsV[i][1]);
+    distinctVertices.insert(conflictsV[j][0]);
+    distinctVertices.insert(conflictsV[j][1]);
+    distinctVertices.insert(conflictsV[k][0]);
+    distinctVertices.insert(conflictsV[k][1]);
+    distinctVertices.insert(conflictsV[m][0]);
+    distinctVertices.insert(conflictsV[m][1]);
+    distinctVertices.insert(conflictsV[n][0]);
+    distinctVertices.insert(conflictsV[n][1]);
+    return (distinctVertices.size() == 5);
+}
+
+
+
+void FAP(){
+    unordered_set<int> distinctNumbers;
+    int aux=0;
+    for (int i = 0; i < conflictsV.size(); ++i) {
+        for (size_t j = i + 1; j < conflictsV.size(); ++j) {
+            for (size_t k = j + 1; k < conflictsV.size(); ++k) {
+                for (size_t m = k + 1; m < conflictsV.size(); ++m) {
+                    for (size_t n = m + 1; n < conflictsV.size(); ++n) {
+                        if(checkPentagon(i,j,k,m,n)){
+                            distinctNumbers.insert(conflictsV[i][0]);                    
+                            distinctNumbers.insert(conflictsV[i][1]);                    
+                            distinctNumbers.insert(conflictsV[j][0]);                    
+                            distinctNumbers.insert(conflictsV[j][1]);                    
+                            distinctNumbers.insert(conflictsV[k][0]);                    
+                            distinctNumbers.insert(conflictsV[k][1]);
+                            distinctNumbers.insert(conflictsV[m][0]);                    
+                            distinctNumbers.insert(conflictsV[m][1]);
+                            distinctNumbers.insert(conflictsV[n][0]);                    
+                            distinctNumbers.insert(conflictsV[n][1]);
+                            aux=0;
+                            int* pentagon = new int[5];
+                            for (int num : distinctNumbers) {
+                                pentagon[aux]=num;
+                                aux++;
+                            }
+                            pentagons.push_back(pentagon);
+                            distinctNumbers.clear();
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+int checkTriangle(int i,int j,int k){
+    unordered_set<int> distinctVertices;
+    distinctVertices.insert(conflictsV[i][0]);
+    distinctVertices.insert(conflictsV[i][1]);
+    distinctVertices.insert(conflictsV[j][0]);
+    distinctVertices.insert(conflictsV[j][1]);
+    distinctVertices.insert(conflictsV[k][0]);
+    distinctVertices.insert(conflictsV[k][1]);
+    return (distinctVertices.size() == 3);
+}
 
 void FAT(){
     unordered_set<int> distinctNumbers;
@@ -36,11 +116,7 @@ void FAT(){
     for (int i = 0; i < conflictsV.size(); ++i) {
         for (size_t j = i + 1; j < conflictsV.size(); ++j) {
             for (size_t k = j + 1; k < conflictsV.size(); ++k) {
-                // Verifica se os pares formam um triângulo
-                if(((conflictsV[i][0]==conflictsV[j][0]) || (conflictsV[i][0]==conflictsV[j][1]) || (conflictsV[i][0]==conflictsV[k][0]) || (conflictsV[i][0]==conflictsV[k][1]))&&
-                    ((conflictsV[i][1]==conflictsV[j][0]) || (conflictsV[i][1]==conflictsV[j][1]) || (conflictsV[i][1]==conflictsV[k][0]) || (conflictsV[i][1]==conflictsV[k][1]))&&
-                    ((conflictsV[j][0]==conflictsV[k][0]) || (conflictsV[j][0]==conflictsV[k][1]) || (conflictsV[j][1]==conflictsV[k][0]) || (conflictsV[j][1]==conflictsV[k][1]))){
-                    // Adiciona o triângulo ao vetor de triângulos
+                if(checkTriangle(i,j,k)){
                     distinctNumbers.insert(conflictsV[i][0]);                    
                     distinctNumbers.insert(conflictsV[i][1]);                    
                     distinctNumbers.insert(conflictsV[j][0]);                    
@@ -93,54 +169,37 @@ vector<int*> find_triangles(vector<int> agrupeted_heroes){
 }
 
 vector<int*> find_pentagons(vector<int> agrupeted_heroes) {
-    vector<int*> pentagons;
-    // Iterate over all combinations of five integers
-    for (int i = 0; i < conflictsV.size(); ++i) {
-        for (size_t j = i + 1; j < conflictsV.size(); ++j) {
-            for (size_t k = j + 1; k < conflictsV.size(); ++k) {
-                for (size_t l = k + 1; l < conflictsV.size(); ++l) {
-                    for (size_t m = l + 1; m < conflictsV.size(); ++m) {
-                        // Check if the five integers form a pentagon
-                        if ((conflictsV[i][0] == conflictsV[j][0] && conflictsV[j][0] == conflictsV[k][0] &&
-                             conflictsV[k][0] == conflictsV[l][0] && conflictsV[l][0] == conflictsV[m][0]) ||
-                            (conflictsV[i][1] == conflictsV[j][1] && conflictsV[j][1] == conflictsV[k][1] &&
-                             conflictsV[k][1] == conflictsV[l][1] && conflictsV[l][1] == conflictsV[m][1])) {
-                            // Add the pentagon to the vector of pentagons
-                            int pentagon[15];
-                            pentagon[0] = i;
-                            pentagon[1] = j;
-                            pentagon[2] = k;
-                            pentagon[3] = l;
-                            pentagon[4] = m;
-                            pentagons.push_back(pentagon);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    int aux=0;
+    vector<int*> aux;
     vector<int*>::iterator it = pentagons.begin();
-    while (it != pentagons.end()) {
+    for (int i = 0; i < pentagons.size(); i++){
+        int *hero = new int[5];
+        hero[0]=pentagons[i][0];
+        hero[1]=pentagons[i][1];
+        hero[2]=pentagons[i][2];
+        hero[3]=pentagons[i][3];
+        hero[4]=pentagons[i][4];
+        aux.push_back(hero);
+    }
+    it = aux.begin();
+    while (it != aux.end()) {
         bool shouldRemove = false;
         for (int i = 0; i < agrupeted_heroes.size(); ++i) {
             if (find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[0]) != agrupeted_heroes.end() ||
                 find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[1]) != agrupeted_heroes.end() ||
                 find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[2]) != agrupeted_heroes.end() ||
                 find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[3]) != agrupeted_heroes.end() ||
-                find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[4]) != agrupeted_heroes.end()) {
+                find(agrupeted_heroes.begin(), agrupeted_heroes.end(), (*it)[4]) != agrupeted_heroes.end()){
                 shouldRemove = true;
                 break;
             }
         }
         if (shouldRemove) {
-            it = pentagons.erase(it);
+            it = aux.erase(it);
         } else {
             ++it;
         }
     }
-
-    return pentagons;
+    return aux;
 }
 
 
@@ -410,13 +469,16 @@ int main(int argc, char const *argv[]){
 
     if(optimalcut){
         FAT();
+        if(myfunction)
+            FAP();
     }
     
-
+    cout<<pentagons.size()<<endl;
+    cout<<triangles.size()<<endl;
     auto start = high_resolution_clock::now();
     bnb(0);
     auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<seconds>(stop - start);
+    auto duration = duration_cast<microseconds>(stop - start);
     cout << "Time= " <<duration.count()<< endl;
     cout<<"Nodes= "<<nodes<<"\n";
     cout<<"Optimal= "<<optimal<<"\n";
