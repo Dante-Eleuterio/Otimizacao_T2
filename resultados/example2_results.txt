@@ -1,0 +1,10 @@
+QA_Auto@Venkomputer:~/faculdade/Otimizacao_T2$ ./separa < exemplos/example2.txt -o
+1
+1 2 3 4 
+Time= 6.29e-06seconds
+Nodes= 11
+QA_Auto@Venkomputer:~/faculdade/Otimizacao_T2$ ./separa < exemplos/example2.txt -o -f
+1
+1 2 3 4 
+Time= 2.44e-05seconds
+Nodes= 31

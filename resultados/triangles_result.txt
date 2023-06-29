@@ -1,0 +1,12 @@
+./separa < exemplos/triangle.txt
+17
+1 2 3 4 5 6 
+Time= 12.1seconds
+Nodes= 42
+
+
+./separa < exemplos/triangle.txt -a
+16
+1 2 3 4 6 
+Time= 0.00595seconds
+Nodes= 124
