@@ -16,6 +16,8 @@ int optimalcut =1;
 int viabilitycut=1;
 int myfunction=1;
 
+
+//Conta o numero de conflitos de herois em um mesmo grupo
 int countconflicts(){
     int conflicts=0;
     for (int i = 0; i < heroes.size(); i++){
@@ -30,23 +32,8 @@ int countconflicts(){
     return conflicts/2;    
 }
 
-// void pentagonsrepetition(int i,int j,int k,int m,int n){
-//     unordered_set<int> distinctNumbers;
-//     for (int i = 0; i < pentagons.size(); i++){
-//         int* pentagon = new int[5];
-//         for (int j = 0; j < 5; j++){
-//             pentagon[j]=pentagons[i][j];
-//         }
-//         if (find(pentagon.begin(), pentagon.end(), pentagon[i][0]) != agrupeted_heroes.end() ||
-//             find(pentagon.begin(), pentagon.end(), pentagon[j][1]) != agrupeted_heroes.end() ||
-//             find(pentagon.begin(), pentagon.end(), pentagon[k][2]) != agrupeted_heroes.end() ||
-//             find(pentagon.begin(), pentagon.end(), pentagon[l][2]) != agrupeted_heroes.end() ||
-//             find(pentagon.begin(), pentagon.end(), pentagon[k][2]) != agrupeted_heroes.end()){
-//         }
-//     }
-    
-// })
 
+//Confere se de fato é um pentagono
 int checkPentagon(int i,int j,int k,int m,int n){
     unordered_set<int> distinctVertices;
     distinctVertices.insert(conflictsV[i][0]);
@@ -63,7 +50,7 @@ int checkPentagon(int i,int j,int k,int m,int n){
 }
 
 
-
+//Acha todos os pentagonos
 void FAP(){
     unordered_set<int> distinctNumbers;
     int aux=0;
@@ -99,6 +86,7 @@ void FAP(){
     }
 }
 
+//Confere se de fato é um triangulo
 int checkTriangle(int i,int j,int k){
     unordered_set<int> distinctVertices;
     distinctVertices.insert(conflictsV[i][0]);
@@ -110,6 +98,8 @@ int checkTriangle(int i,int j,int k){
     return (distinctVertices.size() == 3);
 }
 
+
+//Acha todos os triangulos
 void FAT(){
     unordered_set<int> distinctNumbers;
     int aux=0;
@@ -138,6 +128,7 @@ void FAT(){
     
 }
 
+//Acha os triangulos dos herois ainda nao escolhidos
 vector<int*> find_triangles(vector<int> agrupeted_heroes){
     vector<int*> aux;
     vector<int*>::iterator it = triangles.begin();
@@ -168,6 +159,7 @@ vector<int*> find_triangles(vector<int> agrupeted_heroes){
     return aux;
 }
 
+//Acha os triangulos dos herois ainda nao escolhidos
 vector<int*> find_pentagons(vector<int> agrupeted_heroes) {
     vector<int*> aux;
     vector<int*>::iterator it = pentagons.begin();
@@ -202,7 +194,7 @@ vector<int*> find_pentagons(vector<int> agrupeted_heroes) {
     return aux;
 }
 
-
+//Acha os pares dentro dos trianguos
 int findPairsTri(int vetor1[3], int vetor2[3]) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -214,6 +206,7 @@ int findPairsTri(int vetor1[3], int vetor2[3]) {
     return 0;
 }
 
+//Acha os pares dentro dos pentagonos
 int findPairsPenta(int vetor1[5], int vetor2[5]) {
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
@@ -226,6 +219,7 @@ int findPairsPenta(int vetor1[5], int vetor2[5]) {
 }
 
 
+//Função limitante melhor
 int betterGuedes() {
     int conflicts = countconflicts();
     vector<int> agrupeted_heroes; // Conjunto dos heróis que foram anexados a um grupo
@@ -257,7 +251,7 @@ int betterGuedes() {
     return 0;
 }
 
-
+//Função limitante dada
 int Guedes(){
     int conflicts = countconflicts();
     vector<int> agrupeted_heroes; //Conjunto dos herois que foram anexados a um grupo
@@ -289,6 +283,7 @@ int limitating(){
         return Guedes();
 }
 
+//Remove heroi do grupo A
 void removeA(int tgt){
     for (int i = 0; i < A.size(); i++){
         if(A[i]==tgt){
@@ -299,6 +294,7 @@ void removeA(int tgt){
     
 }
 
+//Remove heroi do grupo B
 void removeB(int tgt){
     for (int i = 0; i < B.size(); i++){
         if(B[i]==tgt){
@@ -307,6 +303,8 @@ void removeB(int tgt){
         }
     }
 }
+
+//Confere se a solução é valida
 int checksolution(){
     int foundA=0;
     int foundB=0;
@@ -329,11 +327,14 @@ int checksolution(){
 
 }
 
+
+//Branch and BOund
 void bnb(int count){
     nodes++;
     int foundA=0;
     int foundB=0;
 
+    //Base da recursão
     if(count==heroes.size()){
         if(!viabilitycut && !checksolution()){
             return;
@@ -352,7 +353,7 @@ void bnb(int count){
         return;
     }
 
-
+    //Corte por viabilidade
     if(viabilitycut){
         for (int i = 0; i < heroes[count].friends.size(); i++){
             if(heroes[count].friends[i]->group==1){
@@ -369,6 +370,7 @@ void bnb(int count){
         }
     }    
 
+    //Corte por optimalidade
     if(optimalcut){
         if(foundA){
             A.push_back(heroes[count].name);
@@ -473,26 +475,39 @@ int main(int argc, char const *argv[]){
             FAP();
     }
     
-    cout<<pentagons.size()<<endl;
-    cout<<triangles.size()<<endl;
     auto start = high_resolution_clock::now();
     bnb(0);
     auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Time= " <<duration.count()<< endl;
-    cout<<"Nodes= "<<nodes<<"\n";
-    cout<<"Optimal= "<<optimal<<"\n";
-    cout<<"Group A:"<<"\n";
+    auto duration = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start);
+    cout<<optimal<<endl;
+    int foundA=0;
+    int foundB=0;
     for(int i=0;i<optimalA.size();i++){
-        cout<<optimalA[i]<<"\n";
+        if(optimalA[i]==1){
+            foundA=1;
+            break;
+        }
     }
-    cout<<"Group B:"<<"\n";
     for(int i=0;i<optimalB.size();i++){
-        cout<<optimalB[i]<<"\n";
+        if(optimalB[i]==1){
+            foundB=1;
+            break;
+        }
     }
-
-
-
-
+    if(foundA){
+        sort(optimalA.begin(),optimalA.end());
+        for(int i=0;i<optimalA.size();i++){
+           cout<<optimalA[i]<<" ";
+        }    
+    }else{
+        sort(optimalB.begin(),optimalB.end());
+        for(int i=0;i<optimalB.size();i++){
+           cout<<optimalB[i]<<" ";
+        }
+    }
+    cout<<endl;
+    cerr.precision(3);
+    cerr << "Time= " <<duration.count()<<"seconds"<< endl;
+    cerr<<"Nodes= "<<nodes<<"\n";
     return 0;
 }
